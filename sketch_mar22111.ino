@@ -1,0 +1,236 @@
+// 定義接腳
+const int LED1 = 2;     // 第一個 LED
+const int LED2 = 3;     // 第二個 LED
+const int LED3 = 4;     // 第三個 LED
+const int LED4 = 5;     // 第四個 LED
+const int LED5 = 8;     // 第五個 LED（新增）
+const int LED6 = 9;     // 第六個 LED（新增）
+const int BUZZER = 6;   // 蜂鳴器
+const int BUTTON = 7;   // 按鈕
+
+// 模式計數器
+int currentMode = 0;
+bool lastButtonState = HIGH;
+
+// 函數宣告
+void allLEDsOff();
+void allLEDsOn();
+void mode1_sequence();
+void mode2_scanning();
+void mode3_blinking();
+void mode4_alternate();
+void mode5_random();
+void mode6_fastBackForth();
+
+// 關閉所有 LED
+void allLEDsOff() {
+  digitalWrite(LED1, LOW);
+  digitalWrite(LED2, LOW);
+  digitalWrite(LED3, LOW);
+  digitalWrite(LED4, LOW);
+  digitalWrite(LED5, LOW);  // 新增
+  digitalWrite(LED6, LOW);  // 新增
+}
+
+// 打開所有 LED
+void allLEDsOn() {
+  digitalWrite(LED1, HIGH);
+  digitalWrite(LED2, HIGH);
+  digitalWrite(LED3, HIGH);
+  digitalWrite(LED4, HIGH);
+  digitalWrite(LED5, HIGH);  // 新增
+  digitalWrite(LED6, HIGH);  // 新增
+}
+
+// 模式1：依序點亮
+void mode1_sequence() {
+  for(int i = LED1; i <= LED4; i++) {
+    if(digitalRead(BUTTON) == LOW) return;
+    digitalWrite(i, HIGH);
+    tone(BUZZER, 262 + (i-LED1)*50, 50);
+    delay(200);
+    digitalWrite(i, LOW);
+  }
+  // 新增 LED5, LED6
+  if(digitalRead(BUTTON) == LOW) return;
+  digitalWrite(LED5, HIGH);
+  tone(BUZZER, 262 + 4*50, 50);
+  delay(200);
+  digitalWrite(LED5, LOW);
+  
+  if(digitalRead(BUTTON) == LOW) return;
+  digitalWrite(LED6, HIGH);
+  tone(BUZZER, 262 + 5*50, 50);
+  delay(200);
+  digitalWrite(LED6, LOW);
+}
+
+// 模式2：來回掃描
+void mode2_scanning() {
+  // 往右
+  for(int pin = LED1; pin <= LED4; pin++) {
+    if(digitalRead(BUTTON) == LOW) return;
+    digitalWrite(pin, HIGH);
+    tone(BUZZER, 330, 50);
+    delay(150);
+    digitalWrite(pin, LOW);
+  }
+  // 新增 LED5, LED6
+  digitalWrite(LED5, HIGH);
+  tone(BUZZER, 330, 50);
+  delay(150);
+  digitalWrite(LED5, LOW);
+  
+  digitalWrite(LED6, HIGH);
+  tone(BUZZER, 330, 50);
+  delay(150);
+  digitalWrite(LED6, LOW);
+  
+  // 往左
+  digitalWrite(LED6, HIGH);
+  tone(BUZZER, 392, 50);
+  delay(150);
+  digitalWrite(LED6, LOW);
+  
+  digitalWrite(LED5, HIGH);
+  tone(BUZZER, 392, 50);
+  delay(150);
+  digitalWrite(LED5, LOW);
+  
+  for(int pin = LED4; pin >= LED1; pin--) {
+    if(digitalRead(BUTTON) == LOW) return;
+    digitalWrite(pin, HIGH);
+    tone(BUZZER, 392, 50);
+    delay(150);
+    digitalWrite(pin, LOW);
+  }
+}
+
+// 模式3：全部閃爍
+void mode3_blinking() {
+  if(digitalRead(BUTTON) == LOW) return;
+  allLEDsOn();
+  tone(BUZZER, 262, 50);
+  delay(200);
+  allLEDsOff();
+  delay(200);
+}
+
+// 模式4：交替閃爍
+void mode4_alternate() {
+  if(digitalRead(BUTTON) == LOW) return;
+  
+  // 奇數LED亮
+  digitalWrite(LED1, HIGH);
+  digitalWrite(LED3, HIGH);
+  digitalWrite(LED5, HIGH);
+  digitalWrite(LED2, LOW);
+  digitalWrite(LED4, LOW);
+  digitalWrite(LED6, LOW);
+  tone(BUZZER, 330, 50);
+  delay(200);
+  
+  // 偶數LED亮
+  digitalWrite(LED1, LOW);
+  digitalWrite(LED3, LOW);
+  digitalWrite(LED5, LOW);
+  digitalWrite(LED2, HIGH);
+  digitalWrite(LED4, HIGH);
+  digitalWrite(LED6, HIGH);
+  tone(BUZZER, 392, 50);
+  delay(200);
+}
+
+// 模式5：隨機閃爍
+void mode5_random() {
+  if(digitalRead(BUTTON) == LOW) return;
+  
+  // 隨機選擇 LED1 到 LED6
+  int leds[] = {LED1, LED2, LED3, LED4, LED5, LED6};
+  int randomIndex = random(6);
+  int randomLed = leds[randomIndex];
+  
+  digitalWrite(randomLed, HIGH);
+  tone(BUZZER, 262 + randomIndex*100, 50);
+  delay(100);
+  digitalWrite(randomLed, LOW);
+  delay(50);
+}
+
+// 模式6：快速來回
+void mode6_fastBackForth() {
+  if(digitalRead(BUTTON) == LOW) return;
+  
+  // 快速正序點亮
+  digitalWrite(LED1, HIGH);
+  tone(BUZZER, 262, 20);
+  delay(50);
+  digitalWrite(LED2, HIGH);
+  tone(BUZZER, 294, 20);
+  delay(50);
+  digitalWrite(LED3, HIGH);
+  tone(BUZZER, 330, 20);
+  delay(50);
+  digitalWrite(LED4, HIGH);
+  tone(BUZZER, 349, 20);
+  delay(50);
+  digitalWrite(LED5, HIGH);
+  tone(BUZZER, 392, 20);
+  delay(50);
+  digitalWrite(LED6, HIGH);
+  tone(BUZZER, 440, 20);
+  delay(50);
+  
+  // 快速倒序關閉
+  digitalWrite(LED6, LOW);
+  tone(BUZZER, 440, 20);
+  delay(50);
+  digitalWrite(LED5, LOW);
+  tone(BUZZER, 392, 20);
+  delay(50);
+  digitalWrite(LED4, LOW);
+  tone(BUZZER, 349, 20);
+  delay(50);
+  digitalWrite(LED3, LOW);
+  tone(BUZZER, 330, 20);
+  delay(50);
+  digitalWrite(LED2, LOW);
+  tone(BUZZER, 294, 20);
+  delay(50);
+  digitalWrite(LED1, LOW);
+  tone(BUZZER, 262, 20);
+  delay(50);
+}
+
+void setup() {
+  pinMode(LED1, OUTPUT);
+  pinMode(LED2, OUTPUT);
+  pinMode(LED3, OUTPUT);
+  pinMode(LED4, OUTPUT);
+  pinMode(LED5, OUTPUT);  // 新增
+  pinMode(LED6, OUTPUT);  // 新增
+  pinMode(BUZZER, OUTPUT);
+  pinMode(BUTTON, INPUT_PULLUP);
+}
+
+void loop() {
+  bool buttonState = digitalRead(BUTTON);
+  
+  if (buttonState == LOW && lastButtonState == HIGH) {
+    currentMode = (currentMode + 1) % 7;  // 7個模式
+    tone(BUZZER, 440, 50);
+    allLEDsOff();
+  }
+  
+  lastButtonState = buttonState;
+
+  switch(currentMode) {
+    case 0: mode1_sequence(); break;    // 依序點亮
+    case 1: mode2_scanning(); break;    // 來回掃描
+    case 2: mode3_blinking(); break;    // 全部閃爍
+    case 3: mode4_alternate(); break;   // 交替閃爍
+    case 4: mode5_random(); break;      // 隨機閃爍
+    case 5: mode6_fastBackForth(); break; // 快速來回
+    case 6: allLEDsOff(); break;        // 全部關閉
+  }
+}
